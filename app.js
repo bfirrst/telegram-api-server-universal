@@ -13,14 +13,16 @@ app.post('/bio', async (req, res) => {
     }
 
     const stringSession = new StringSession(sessionString);
-    const client = new TelegramClient(stringSession, parseInt(apiId), apiHash, { connectionRetries: 5 });
+
+    // Инициализируем Telegram-клиент с отключением получения обновлений в фоне
+    const client = new TelegramClient(stringSession, parseInt(apiId), apiHash, {
+        connectionRetries: 5,
+        autoReconnect: false,
+    });
 
     try {
         if (!client.connected) {
             await client.connect();
-            if (client._updates) {
-                client._updates.stop();
-            }
         }
 
         let user;
@@ -33,8 +35,6 @@ app.post('/bio', async (req, res) => {
         const fullUser = await client.invoke(
             new Api.users.GetFullUser({ id: user.id })
         );
-
-        console.log('FullUser:', JSON.stringify(fullUser, null, 2));
 
         const bio = fullUser.about || "";
 
