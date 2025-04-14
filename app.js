@@ -13,27 +13,36 @@ app.post('/bio', async (req, res) => {
     }
 
     const stringSession = new StringSession(sessionString);
-    const client = new TelegramClient(stringSession, parseInt(apiId), apiHash, { connectionRetries: 5 });
+    const client = new TelegramClient(stringSession, parseInt(apiId), apiHash, {
+        connectionRetries: 5,
+    });
 
     try {
         if (!client.connected) {
             await client.connect();
-            client._updates.stop(); // Останавливаем updates loop
+        }
+
+        // Останавливаем updates loop, если существует
+        if (client._updates?.stop) {
+            client._updates.stop();
         }
 
         let user;
-
         if (username) {
             user = await client.getEntity(username);
         } else if (phone) {
             user = await client.getEntity(phone);
         }
 
+        if (!user || !user.id) {
+            return res.status(500).json({ success: false, error: "User not found" });
+        }
+
         const fullUser = await client.invoke(
             new Api.users.GetFullUser({ id: user.id })
         );
 
-        const bio = fullUser.about || "";
+        const bio = fullUser?.about || "";
 
         res.json({ success: true, bio });
 
