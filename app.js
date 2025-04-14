@@ -13,19 +13,16 @@ app.post('/bio', async (req, res) => {
     }
 
     const stringSession = new StringSession(sessionString);
-
-    // Инициализируем Telegram-клиент с отключением получения обновлений в фоне
     const client = new TelegramClient(stringSession, parseInt(apiId), apiHash, {
         connectionRetries: 5,
-        autoReconnect: false,
+        autoReconnect: false,  // отключаем автореконнект
     });
 
     try {
-        if (!client.connected) {
-            await client.connect();
-        }
+        await client.connect();
 
         let user;
+
         if (username) {
             user = await client.getEntity(username);
         } else if (phone) {
