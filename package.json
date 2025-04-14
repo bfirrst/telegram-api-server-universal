@@ -1,0 +1,12 @@
+{
+  "name": "telegram-api-server-universal",
+  "version": "1.0.1",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "telegram": "^2.19.8"
+  }
+}
